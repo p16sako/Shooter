@@ -240,7 +240,7 @@ body {
 			rumble.volume = 1;
 
 			enemyLaser = game.add.audio('enemyLaser');
-			enemyLaser.volume = 1;
+			enemyLaser.volume = 0.5;
 		}
 
 		function update() {
@@ -411,7 +411,7 @@ body {
               					enemyBullet.damageAmount = this.damageAmount;
               					var angle = game.physics.arcade.moveToObject(enemyBullet, player, bulletSpeed);
               					enemyBullet.angle = game.math.radToDeg(angle);
-								enemyLaser.play();
+						enemyLaser.play();
               			}
 
               			//  Kill enemies once they go off screen
