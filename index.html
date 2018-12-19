@@ -1,0 +1,710 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+<title>Shooter</title>
+<meta charset="utf-8">
+<style type="text/css">
+body {
+	margin: 0;
+	padding: 0;
+	background-color: #000;
+}
+</style>
+<script src="menu.js" type="text/javascript"></script>
+<script src="Level1.js" type="text/javascript"></script>
+<script src="Level2.js" type="text/javascript"></script>
+<script src="//cdn.jsdelivr.net/phaser/2.6.2/phaser.min.js" type="text/javascript"></script>
+</head>
+<body>
+	<script type="text/javascript">
+		var game = new Phaser.Game(800, 600, Phaser.AUTO, 'phaser-demo')
+
+		// Basics
+		var player;
+		var starfield;
+		var cursors;
+		var bank;
+		var shipTrail;
+		var bullets;
+		var honeyRings
+		var fireButton;
+		var bulletTimer = 0;
+		var level;
+
+		// Enemies
+		var trail;
+		var explosions;
+
+		// Level 1 enemies
+		var enemy2;
+		var enemy2LaunchTimer;
+		var enemy2Spacing = 1000;
+
+		// Level 1 enemies
+		var enemy3;
+		var enemy3LaunchTimer;
+		var enemy3Launched = false;
+		var enemy3Bullets;
+
+		// Needed for level 2 enemies
+		var enemy1Level2;
+		var enemy1Level2LaunchTimer;
+		var enemy1Level2Spacing = 700;
+
+		// Needed for level 2 enemies
+		var enemy2Level2;
+		var enemy2Level2LaunchTimer;
+		var enemy2Level2Launched = false;
+		var enemy2Bullets;
+
+		// Needed for asteroids
+		var asteroids;
+		var asteroidsSpacing = 1000;
+		var asteroidsLaunchTimer;
+		var asteroidsLaunched = false;
+
+		// Boss
+		var boss1;
+		var boss2;
+		var bossBullets;
+		var bossDeath;
+		var bossLaunchTimer;
+		var bossLaunched = false;
+		var bossBulletTimer = 0;
+
+		// Ο Ήρακλής πέφτει από το διαστημόπλοιο
+		var aliensForUpgrade;
+
+		// Game Music
+		var music;
+		var bossMusic;
+
+		// Game Sounds
+		var rumble;
+		var laser;
+		var enemyLaser;
+
+		// Score
+		var score = 0;
+		var scoreText;
+
+		// Game Over
+		var gameOver;
+
+		var ACCLERATION = 600;
+		var DRAG = 400;
+		var MAXSPEED = 400;
+
+		// Include the game stages and menu in our game and start from Menu.
+		game.state.add('Level1', level1);
+		game.state.add('Level2', level2);
+		game.state.add('Menu', menu);
+		game.state.start('Menu');
+
+		function fireBullet() {
+		//  To avoid them being allowed to fire too fast we set a time limit
+			switch (player.weaponLevel){
+			case 1:
+			// To avoid them being allowed to fire too fast we set a time limit
+				if (game.time.now > bulletTimer) {
+					var BULLET_SPEED = 400;
+					var BULLET_SPACING = 250;
+					//  Grab the first bullet we can from the pool
+					var bullet = bullets.getFirstExists(false);
+
+					if (bullet) {
+						//  And fire it
+						//  Make bullet come out of tip of ship with right angle
+						var bulletOffset = 20 * Math.sin(game.math.degToRad(player.angle));
+						bullet.reset(player.x, player.y  + bulletOffset);
+						bullet.angle = player.angle;
+						game.physics.arcade.velocityFromAngle(bullet.angle - 0, BULLET_SPEED, bullet.body.velocity);
+						bullet.body.velocity.y += player.body.velocity.y;
+
+						bulletTimer = game.time.now + BULLET_SPACING;
+										laser.play();
+					}
+				}
+			break;
+
+			case 2:
+				if (game.time.now > bulletTimer) {
+					var BULLET_SPEED = 400;
+					var BULLET_SPACING = 550;
+
+
+					for (var i = 0; i < 3; i++) {
+						var bullet = bullets.getFirstExists(false);
+						if (bullet) {
+							//  Make bullet come out of tip of ship with right angle
+							var bulletOffset = 20 * Math.sin(game.math.degToRad(player.angle));
+							bullet.reset(player.x + bulletOffset, player.y);
+							//  "Spread" angle of 1st and 3rd bullets
+							var spreadAngle;
+							if (i === 0) spreadAngle = -20;
+							if (i === 1) spreadAngle = 0;
+							if (i === 2) spreadAngle = 20;
+							bullet.angle = player.angle + spreadAngle;
+							game.physics.arcade.velocityFromAngle(spreadAngle, BULLET_SPEED, bullet.body.velocity);
+							bullet.body.velocity.x += player.body.velocity.y;
+							laser.play();
+						}
+						bulletTimer = game.time.now + BULLET_SPACING;
+					}
+				}
+			break;
+
+			case 3:
+			if (game.time.now > bulletTimer) {
+					var BULLET_SPEED = 800;
+					var BULLET_SPACING = 400;
+
+
+					for (var i = 0; i < 5; i++) {
+						var honeyRing = honeyRings.getFirstExists(false);
+						if (honeyRing) {
+							//  Make bullet come out of tip of ship with right angle
+							var bulletOffset = 20 * Math.sin(game.math.degToRad(player.angle));
+							honeyRing.reset(player.x + bulletOffset, player.y);
+							//  "Spread" angle of 1st and 3rd bullets
+							var spreadAngle;
+							if (i === 0) spreadAngle = -30;
+							if (i === 1) spreadAngle = -15;
+							if (i === 2) spreadAngle = 0;
+							if (i === 3) spreadAngle = 15;
+							if (i === 4) spreadAngle = 30;
+
+							honeyRing.angle = player.angle + spreadAngle;
+							game.physics.arcade.velocityFromAngle(spreadAngle, BULLET_SPEED, honeyRing.body.velocity);
+							honeyRing.body.velocity.x += player.body.velocity.y;
+							laser.play();
+						}
+						bulletTimer = game.time.now + BULLET_SPACING;
+					}
+				}
+			}
+		}
+
+		// Add a trail to every enemy
+		function addEnemyEmitterTrail(enemy) {
+			var enemyTrail = game.add.emitter(enemy.x - 10, player.y, 100);
+			enemyTrail.width = 10;
+			enemyTrail.makeParticles('trail', [1,2,3,4,5]);
+			enemyTrail.setXSpeed(20, -20);
+			enemyTrail.setRotation(50,-50);
+			enemyTrail.setAlpha(0.4, 0, 800);
+			enemyTrail.setScale(0.01, 0.1, 0.01, 0.1, 1000, Phaser.Easing.Quintic.Out);
+			enemy.trail = enemyTrail;
+		}
+
+		//Start spawning Enemy2
+		function launchEnemy2(){
+
+			var ENEMY_SPEED = 300;
+
+			var enemy = enemy2.getFirstExists(false);
+			if (enemy){
+				enemy.reset(800, game.rnd.integerInRange(0, game.height));
+				enemy.body.velocity.x = -ENEMY_SPEED;
+				enemy.body.velocity.y = game.rnd.integerInRange(400, -400);
+				enemy.body.drag.y = 100;
+
+				enemy.trail.start(false, 800, 1);
+
+				// Update function for each enemy ship to update rotation
+				enemy.update = function(){
+					enemy.angle = -90 - game.math.radToDeg(Math.atan2(enemy.body.velocity.x, enemy.body.velocity.y));
+
+					enemy.trail.x = enemy.x -10;
+					enemy.trail.y = enemy.y;
+
+					// Kill enemies once they go off screen
+					if (enemy.y > game.height + 200 || enemy.x > game.width + 200){
+						enemy.kill();
+					}
+				};
+			}
+
+			//  Send another enemy soon
+			enemy2LaunchTimer =
+			game.time.events.add(game.rnd.integerInRange(enemy2Spacing, enemy2Spacing + 1000), launchEnemy2);
+		}
+
+		// Start spawning enemy3
+		function launchEnemy3() {
+			var startingY = game.rnd.integerInRange(100, game.height - 100);
+			var horizontalSpeed = 230;
+			var spread = 60;
+			var frequency = 70;
+			var horizontalSpacing = 80;
+			var numEnemiesInWave = 5;
+			var timeBetweenWaves = 2500;
+
+			//  Launch wave
+			for (var i =0; i < numEnemiesInWave; i++) {
+				var enemy = enemy3.getFirstExists(false);
+				if (enemy) {
+					enemy.startingY = startingY;
+					enemy.reset(800 + (horizontalSpacing * i), game.height / 2);
+					enemy.body.velocity.x = -horizontalSpeed;
+
+					// Set up Firing
+					var bulletSpeed = 400;
+					var firingDelay = 2000;
+					enemy.bullets = 1;
+					enemy.lastShot = 0;
+
+					//  Update function for each enemy
+					enemy.update = function(){
+
+						//  Wave movement
+						this.body.y = this.startingY + Math.sin((this.x) / frequency) * spread;
+
+						//  Squish and rotate ship for illusion of "banking"
+						bank = Math.cos((this.x + 60) / frequency)
+						this.scale.y = 0.5 - Math.abs(bank) / 8;
+						this.angle = 0;
+
+						// Fire
+						enemyBullet = enemy3Bullets.getFirstExists(false);
+						if (enemyBullet &&
+							this.alive &&
+							this.bullets &&
+							this.x < game.height &&
+							game.time.now > firingDelay + this.lastShot) {
+								this.lastShot = game.time.now;
+								this.bullets--;
+								enemyBullet.reset(this.x + this.width / 2, this.y);
+								enemyBullet.damageAmount = this.damageAmount;
+								var angle = game.physics.arcade.moveToObject(enemyBullet, player, bulletSpeed);
+								enemyBullet.angle = game.math.radToDeg(angle);
+								enemyLaser.play();
+						}
+
+						//  Kill enemies once they go off screen
+						if (this.x > game.width + 400) {
+							this.kill();
+							this.x = -20 ;
+						}
+					};
+				}
+			}
+			//  Send another wave soon
+			enemy3LaunchTimer = game.time.events.add
+				(game.rnd.integerInRange(timeBetweenWaves, timeBetweenWaves + 4000), launchEnemy3);
+		}
+
+		//Start spawning enemy1Level2
+		function launchEnemy1Level2(){
+
+			var ENEMY_SPEED = 500;
+
+			var enemy = enemy1Level2.getFirstExists(false);
+			if (enemy){
+				enemy.reset(800, game.rnd.integerInRange(0, game.height));
+				enemy.body.velocity.x = -ENEMY_SPEED;
+				enemy.body.velocity.y = game.rnd.integerInRange(400, -400);
+				enemy.body.drag.y = 100;
+
+				enemy.trail.start(false, 800, 1);
+
+				// Update function for each enemy ship to update rotation
+				enemy.update = function(){
+					enemy.angle = -90 - game.math.radToDeg(Math.atan2(enemy.body.velocity.x, enemy.body.velocity.y));
+
+					enemy.trail.x = enemy.x + 20;
+					enemy.trail.y = enemy.y;
+
+					// Kill enemies once they go off screen
+					if (enemy.y > game.height + 200 || enemy.x > game.width + 200){
+						enemy.kill();
+					}
+				};
+			}
+			//  Send another enemy soon
+			enemy1Level2LaunchTimer =
+			game.time.events.add(game.rnd.integerInRange(enemy1Level2Spacing, enemy1Level2Spacing + 600), launchEnemy1Level2);
+		}
+
+		//Start spawning enemy1Level2
+		function launchAsteroids(){
+
+			var ENEMY_SPEED = 200;
+
+			var asteroid = asteroids.getFirstExists(false);
+			if (asteroid){
+				asteroid.reset(game.rnd.integerInRange(game.width / 3, game.width), 0);
+				asteroid.body.velocity.x = -ENEMY_SPEED;
+				asteroid.body.velocity.y = ENEMY_SPEED; 
+
+				// Update function for each enemy ship to update rotation
+				asteroid.update = function(){
+					asteroid.angle = -90 - game.math.radToDeg(Math.atan2(asteroid.body.velocity.x, asteroid.body.velocity.y));
+
+					// Kill enemies once they go off screen
+					if (asteroid.y > game.height + 200 || asteroid.x > game.width + 200){
+						asteroid.kill();
+					}
+				};
+			}
+			//  Send another enemy soon
+			asteroidsLaunchTimer =
+			game.time.events.add(game.rnd.integerInRange(asteroidsSpacing, asteroidsSpacing*2), launchAsteroids);
+		}
+
+		// Start spawning second enemies for Level 2
+		function launchEnemy2Level2() {
+			var startingY = game.rnd.integerInRange(100, game.height - 100);
+			var horizontalSpeed = 300;
+			var spread = 60;
+			var frequency = 70;
+			var horizontalSpacing = 80;
+			var numEnemiesInWave = 7;
+			var timeBetweenWaves = 2000;
+
+			//  Launch wave
+			for (var i =0; i < numEnemiesInWave; i++) {
+				var enemy = enemy2Level2.getFirstExists(false);
+				if (enemy) {
+					enemy.startingY = startingY;
+					enemy.reset(800 + (horizontalSpacing * i), game.height / 2);
+					enemy.body.velocity.x = -horizontalSpeed;
+
+					// Set up Firing
+					var bulletSpeed = 600;
+					var firingDelay = 1000;
+					enemy.bullets = 1;
+					enemy.lastShot = 0;
+
+					//  Update function for each enemy
+					enemy.update = function(){
+
+						//  Wave movement
+						this.body.y = this.startingY + Math.sin((this.x) / frequency) * spread;
+
+						//  Squish and rotate ship for illusion of "banking"
+						bank = Math.cos((this.x + 60) / frequency)
+						this.scale.y = 0.5 - Math.abs(bank) / 8;
+						this.angle = 0;
+
+						// Fire
+						enemyBullet = enemy2Bullets.getFirstExists(false);
+						if (enemyBullet &&
+							this.alive &&
+							this.bullets &&
+							this.x < game.height &&
+							game.time.now > firingDelay + this.lastShot) {
+								this.lastShot = game.time.now;
+								this.bullets--;
+								enemyBullet.reset(this.x + this.width / 2, this.y);
+								enemyBullet.damageAmount = this.damageAmount;
+								var angle = game.physics.arcade.moveToObject(enemyBullet, player, bulletSpeed);
+								enemyBullet.angle = game.math.radToDeg(angle);
+								enemyLaser.play();
+						}
+
+						//  Kill enemies once they go off screen
+						if (this.x > game.width + 400) {
+							this.kill();
+							this.x = -20 ;
+						}
+					};
+				}
+			}
+			//  Send another wave soon
+			enemy2Level2LaunchTimer = game.time.events.add
+				(game.rnd.integerInRange(timeBetweenWaves, timeBetweenWaves + 2000), launchEnemy2Level2);
+		}
+
+		// Start spawning Aliens
+		function launchAliens(x,y){
+
+			var ENEMY_SPEED = 140;
+			var d = Math.random();
+
+			var alien = aliensForUpgrade.getFirstExists(false);
+			if (d < 0.1){
+				if (alien){
+					alien.reset(x ,y);
+					alien.body.velocity.x = 0;
+					alien.body.velocity.y = ENEMY_SPEED;
+
+					// Update function for each alien ship to update rotation
+					alien.update = function(){
+						// Kill enemies once they go off screen
+						if (alien.y > game.height + 200){
+							alien.kill();
+						}
+					};
+				}	
+			}
+		}
+
+		// Function for when the player and an alien collide
+		function hitAlien(alien, bullet){
+			if (player.weaponLevel <= 2){
+				player.weaponLevel++;
+			}
+			alien.kill();
+		}
+
+		// Function to spawn boss
+		function launchBoss() {
+			if (level === 1){
+				boss1.reset(game.width + 100, game.height / 2);
+				music.stop();
+				bossMusic.play();
+				bossBulletTimer = game.time.now + 5000;
+			}
+			if (level === 2){
+				boss2.reset(game.width + 100, game.height / 2);
+				music.stop();
+				bossMusic.play();
+				bossBulletTimer = game.time.now + 3000;
+			}
+		}
+
+		// Function for when an enemy bullet and the player collide
+		function enemyHitsPlayer (player, bullet) {
+			var explosion = explosions.getFirstExists(false);
+			explosion.reset(player.body.x + player.body.halfWidth, player.body.y + player.body.halfHeight);
+			explosion.alpha = 0.7;
+			explosion.play('trail', 30, false, true);
+			bullet.kill();
+
+			player.damage(bullet.damageAmount);
+			if (player.weaponLevel > 1){
+				player.weaponLevel--;
+			}
+			shields.render();
+		}
+
+		// Function for when an enemy and the player collide
+		function shipCollide(player, enemy){
+			var explosion = explosions.getFirstExists(false);
+			explosion.reset(enemy.body.x + enemy.body.halfWidth, enemy.body.y + enemy.body.halfHeight);
+			explosion.play('trail', 30, false, true);
+			rumble.play();
+			enemy.kill();
+
+			if (player.weaponLevel > 1){
+				player.weaponLevel--;
+			}
+			player.damage(enemy.damageAmount);
+			shields.render();
+		}
+
+		// Function for when an enemy and the players bullets collide
+		function hitEnemy(enemy, bullet){
+			var explosion = explosions.getFirstExists(false);
+			explosion.reset(bullet.body.x + bullet.body.halfWidth, bullet.body.y + bullet.body.halfHeight);
+			explosion.body.velocity.y = enemy.body.velocity.y;
+			explosion.alpha = 0.7;
+			explosion.play('trail', 30, false, true);
+			rumble.play();
+
+			if (player.weaponLevel <= 2){
+				launchAliens(enemy.x,enemy.y);
+			}
+
+			enemy.kill();
+			bullet.kill();
+
+			// Increase Score
+			score += enemy.damageAmount*10;
+			scoreText.render();
+
+			// Pacing
+
+			// Enemies come quicker as score increases
+			enemy2Spacing *= 0.9;
+
+			// Enemy3 comes in after a score of 1000
+			if (!enemy3Launched && score >= 1000) {
+				enemy3Launched = true;
+				launchEnemy3();
+	
+				// Slow enemy2 now that there are more enemies
+				enemy2Spacing *= 2;
+			}
+
+			// Launch boss
+			if (!bossLaunched && score > 15000 && level === 1) {
+				game.time.events.add(2000, function(){
+					bossLaunched = true;
+					launchBoss();
+				});
+			}
+		}
+
+		function hitEnemyLevel2(enemy, bullet){
+			var explosion = explosions.getFirstExists(false);
+			explosion.reset(bullet.body.x + bullet.body.halfWidth, bullet.body.y + bullet.body.halfHeight);
+			explosion.body.velocity.y = enemy.body.velocity.y;
+			explosion.alpha = 0.7;
+			explosion.play('trail', 30, false, true);
+			rumble.play();
+
+			if (player.weaponLevel <= 2){
+				launchAliens(enemy.x,enemy.y);
+			}
+
+			enemy.kill();
+			bullet.kill();
+
+			// Increase Score
+			score += enemy.damageAmount*10;
+			scoreText.render();
+
+			// Pacing
+
+			// Enemies come quicker as score increases
+			enemy2Spacing *= 0.9;
+			
+			// Asteroids come in after a score of 1000
+			if (!asteroidsLaunched && score >= 1000){
+				asteroidsLaunched = true;
+				launchAsteroids();
+			}
+			// Enemy2 comes in after a score of 1500
+			if (enemy2Level2Launched === false && score >= 1500) {
+				game.time.events.add(2000, function(){
+					enemy2Level2Launched = true;
+					launchEnemy2Level2();
+				});
+			}
+
+			// Boss2 comes in after a score of 115000
+			if (!bossLaunched && score > 30000) {
+				game.time.events.add(2000, function(){
+					bossLaunched = true;
+					launchBoss();
+				});
+			}
+		}
+
+		function hitBoss(boss, bullet){
+			var explosion = explosions.getFirstExists(false);
+			explosion.reset(boss.body.x ,boss.body.y + game.rnd.integerInRange(boss.body.y - 10, boss.body.y+10))
+			explosion.body.velocity.y = boss.body.velocity.y;
+			explosion.alpha = 1.5;
+			explosion.play('trail', 50, false, true);
+			rumble.play();
+
+			bullet.kill();
+
+			if (boss.hp > 0){
+				boss.hp -= 10;
+			}
+			else {
+				boss.finishOff();
+			}
+		}
+
+		function bossHitTest(boss, bullet){
+			if ((bullet.x > boss.x + boss.width / 5 &&
+				bullet.y > boss.y) ||
+				(bullet.x < boss.x - boss.width / 5 &&
+				bullet.y > boss.y)) {
+			return false;
+			} else {
+			return true;
+			}
+		}
+
+		// Function for next level
+		function next(){
+			
+			// Revive the player
+			player.weaponLevel = 1;
+			player.reset(100, game.height / 2);
+			player.health = 100;
+			shields.render();
+			score = 0;
+			scoreText.render();
+			nextLevel.visible = false;
+			level = 2;
+			game.state.start('Level2');
+		}
+
+		// Function for when the game needs to be restarted
+		function restart(){
+			// Reset the enemies
+
+			if (level === 1){
+				// Enemy2
+				enemy2.callAll('kill');
+				game.time.events.remove(enemy2LaunchTimer);
+				game.time.events.add(1000, 	launchEnemy2);
+
+				// Enemy3
+				enemy3.callAll('kill');
+				enemy3Bullets.callAll('kill');
+				game.time.events.remove(enemy3LaunchTimer);
+			}
+			if (level === 2){
+				// Enemy1Level2
+				enemy1Level2.callAll('kill');
+				game.time.events.remove(enemy1Level2LaunchTimer);
+				game.time.events.add(1000, launchEnemy1Level2);
+
+				// Enemy2Level2
+				enemy2Level2.callAll('kill');
+				enemy2Bullets.callAll('kill');
+				game.time.events.remove(enemy2Level2LaunchTimer);
+
+				// Asteroids
+				asteroids.callAll('kill');
+				game.time.events.remove(asteroidsLaunchTimer);
+			}
+
+			if (level === 1){
+				//Boss1
+				boss1.rayLeft.kill();
+				boss1.rayRight.kill();
+				boss1.kill();
+    	        bossLaunched = false;
+			}
+			if (level === 2){
+				//Boss2
+				boss2.rayLeft.kill();
+				boss2.rayRight.kill();
+				boss2.kill();
+				bossLaunched = false;
+			}
+
+			// Ηρακλής
+			aliensForUpgrade.callAll('kill');
+
+			// Reset pacing depending on which level the player is currently in
+			if(level === 1){
+				enemy2Spacing = 1000;
+				enemy3Launched = false;
+			}
+			if (level === 2){
+				enemy1Level2Spacing = 400;
+				enemy2Level2Launched = false;
+				asteroidsLaunched = false;
+			}
+
+			// Revive the player
+			bullets.callAll('kill');
+			player.weaponLevel = 1;
+			player.reset(100, game.height / 2);
+			player.health = 100;
+			shields.render();
+			score = 0;
+			scoreText.render();
+			
+
+			// Hide the text
+			gameOver.visible = false;
+			bossMusic.stop();
+			music.stop();
+			music.play();
+			player.revive();
+		}
+
+	</script>
+</body>
+</html>
