@@ -18,7 +18,15 @@ body {
 <body>
 	<script type="text/javascript">
 		var game = new Phaser.Game(800, 600, Phaser.AUTO, 'phaser-demo')
+		
+		function preload() {
 
+			//  We need this because the assets are on github pages
+			//  Remove the next 2 lines if running locally
+			game.load.baseURL = 'https://p16sako.github.io/Shooter/';
+			game.load.crossOrigin = 'anonymous';
+		}
+		
 		// Basics
 		var player;
 		var starfield;
