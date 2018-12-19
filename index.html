@@ -18,15 +18,7 @@ body {
 <body>
 	<script type="text/javascript">
 		var game = new Phaser.Game(800, 600, Phaser.AUTO, 'phaser-demo')
-		
-		function preload() {
 
-			//  We need this because the assets are on github pages
-			//  Remove the next 2 lines if running locally
-			game.load.baseURL = 'https://p16sako.github.io/Shooter/';
-			game.load.crossOrigin = 'anonymous';
-		}
-		
 		// Basics
 		var player;
 		var starfield;
@@ -64,6 +56,8 @@ body {
 		var enemy2Level2LaunchTimer;
 		var enemy2Level2Launched = false;
 		var enemy2Bullets;
+		console.log(enemy2Level2LaunchTimer);
+		console.log(enemy2Level2Launched);
 
 		// Needed for asteroids
 		var asteroids;
@@ -367,7 +361,7 @@ body {
 			var spread = 60;
 			var frequency = 70;
 			var horizontalSpacing = 80;
-			var numEnemiesInWave = 7;
+			var numEnemiesInWave = 6;
 			var timeBetweenWaves = 2000;
 
 			//  Launch wave
@@ -421,7 +415,7 @@ body {
 			}
 			//  Send another wave soon
 			enemy2Level2LaunchTimer = game.time.events.add
-				(game.rnd.integerInRange(timeBetweenWaves, timeBetweenWaves + 2000), launchEnemy2Level2);
+				(game.rnd.integerInRange(timeBetweenWaves, timeBetweenWaves + 3000), launchEnemy2Level2);
 		}
 
 		// Start spawning Aliens
@@ -574,15 +568,20 @@ body {
 				asteroidsLaunched = true;
 				launchAsteroids();
 			}
+
 			// Enemy2 comes in after a score of 1500
-			if (enemy2Level2Launched === false && score >= 1500) {
+			console.log(enemy2Level2Launched);
+			console.log(score);
+			console.log(enemy2Level2LaunchTimer);
+			if (!enemy2Level2Launched === false && score >= 1500) {
 				game.time.events.add(2000, function(){
+					console.log(enemy2Level2Launched);
 					enemy2Level2Launched = true;
 					launchEnemy2Level2();
 				});
 			}
 
-			// Boss2 comes in after a score of 115000
+			// Boss2 comes in after a score of 30000
 			if (!bossLaunched && score > 30000) {
 				game.time.events.add(2000, function(){
 					bossLaunched = true;
@@ -624,7 +623,6 @@ body {
 		function next(){
 			
 			// Revive the player
-			player.weaponLevel = 1;
 			player.reset(100, game.height / 2);
 			player.health = 100;
 			shields.render();
@@ -690,13 +688,15 @@ body {
 				enemy3Launched = false;
 			}
 			if (level === 2){
-				enemy1Level2Spacing = 400;
+				enemy1Level2Spacing = 700;
 				enemy2Level2Launched = false;
 				asteroidsLaunched = false;
+				console.log(enemy2Level2Launched);
 			}
 
 			// Revive the player
 			bullets.callAll('kill');
+			honeyRings.callAll('kill');
 			player.weaponLevel = 1;
 			player.reset(100, game.height / 2);
 			player.health = 100;
@@ -711,6 +711,9 @@ body {
 			music.stop();
 			music.play();
 			player.revive();
+			if (level === 2){
+				game.state.add('Level1');
+			}
 		}
 
 	</script>
