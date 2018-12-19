@@ -56,9 +56,10 @@ body {
 		var enemy2Level2LaunchTimer;
 		var enemy2Level2Launched = false;
 		var enemy2Bullets;
-		console.log(enemy2Level2LaunchTimer);
-		console.log(enemy2Level2Launched);
-
+		console.log("enemy2Level2LaunchTimer",enemy2Level2LaunchTimer);
+		console.log("enemy2Level2Launched",enemy2Level2Launched);
+		console.log("score",score)
+		
 		// Needed for asteroids
 		var asteroids;
 		var asteroidsSpacing = 1000;
@@ -570,14 +571,15 @@ body {
 			}
 
 			// Enemy2 comes in after a score of 1500
-			console.log(enemy2Level2Launched);
-			console.log(score);
-			console.log(enemy2Level2LaunchTimer);
+			console.log("enemy2Level2Launched",enemy2Level2Launched);
+			console.log("score",score);
+			console.log("enemy2Level2LaunchTimer",enemy2Level2LaunchTimer);
 			if (!enemy2Level2Launched === false && score >= 1500) {
 				game.time.events.add(2000, function(){
-					console.log(enemy2Level2Launched);
+					console.log("enemy2Level2Launched",enemy2Level2Launched);
 					enemy2Level2Launched = true;
 					launchEnemy2Level2();
+					console.log("enemy2LevelLaunched",enemy2Level2Launched)
 				});
 			}
 
@@ -689,9 +691,10 @@ body {
 			}
 			if (level === 2){
 				enemy1Level2Spacing = 700;
+				console.log("enemy2Level2Launched",enemy2Level2Launched);
 				enemy2Level2Launched = false;
 				asteroidsLaunched = false;
-				console.log(enemy2Level2Launched);
+				console.log("enemy2Level2Launched",enemy2Level2Launched);
 			}
 
 			// Revive the player
