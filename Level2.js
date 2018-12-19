@@ -136,7 +136,6 @@ var level2 = {
         });
 
         // Enemy3 Bullets
-        
         enemy2Bullets = game.add.group();
         enemy2Bullets.enableBody = true;
         enemy2Bullets.physicsBodyType = Phaser.Physics.ARCADE;
@@ -191,7 +190,7 @@ var level2 = {
         boss2.exists = false;
         boss2.alive = false;
         boss2.anchor.setTo(0.5, 0.5);
-        boss2.hp = 1000;
+        boss2.hp = 2000;
         boss2.damageAmount = 60;
         boss2.angle = 180;
         boss2.scale.x = 0.3;
@@ -229,64 +228,48 @@ var level2 = {
             }
         };
 
-        //  boss2 death ray
-        function addRay(leftRight) {
-            var ray = game.add.sprite(0, leftRight * boss2.height * 0.40 , 'deathRay');
-            ray.alive = false;
-            ray.visible = false;
-            boss2.addChild(ray);
-            ray.crop({x: 0, y: 0, width: 40, height: 40});
-            ray.anchor.x = 0.5;
-            ray.anchor.y = 0.5;
-            ray.scale.y = 2;
-            ray.damageAmount = boss2.damageAmount;
-            game.physics.enable(ray, Phaser.Physics.ARCADE);
-            ray.body.setSize(ray.width / 5, ray.height / 4);
-            ray.update = function() {
-                this.alpha = game.rnd.realInRange(0.6, 1);
-            };
-            boss2['ray' + (leftRight > 0 ? 'Right' : 'Left')] = ray;
-        }
-        addRay(1);
-        addRay(-1);
-        //  need to add the ship texture to the group so it renders over the rays
-        var ship = game.add.sprite(0, 0, 'redBoss');
-        ship.anchor = {x: 0.5, y: 0.5};
-        boss2.addChild(ship);
+        // Enemy3 Bullets
+        bossBullets = game.add.group();
+        bossBullets.enableBody = true;
+        bossBullets.physicsBodyType = Phaser.Physics.ARCADE;
+        bossBullets.createMultiple(30, 'enemy2Bullet');
+        bossBullets.callAll('crop', null, {x: 9, y: 0, width: 20, height: 30});
+        bossBullets.setAll('anchor.x', 0.5);
+        bossBullets.setAll('anchor.y', 0.5);
+        bossBullets.setAll('outOfBoundsKill', true);
+        bossBullets.setAll('checkWorldBounds', true);
+        bossBullets.forEach(function(enemy){
+            enemy.body.setSize(15, 20);
+        });
 
         boss2.fire = function() {
             if (game.time.now > bossBulletTimer) {
-                var raySpacing = 1500;
-                var chargeTime = 750;
-                var rayTime = 2000;
-
-                function chargeAndShoot(side) {
-                    ray = boss2['ray' + side];
-                    ray.name = side
-                    ray.revive();
-                    ray.x = 100;
-                    ray.alpha = 0;
-                    ray.scale.x = 17;
-                    game.add.tween(ray).to({alpha: 13}, chargeTime, Phaser.Easing.Linear.In, true).onComplete.add(function(ray){
-                        ray.scale.x = 188;
-                        game.add.tween(ray).to({x: 1875}, rayTime, Phaser.Easing.Linear.In, true).onComplete.add(function(ray){
-                            ray.kill();
-                        });
-                    });
-                }
-                chargeAndShoot('Right');
-                chargeAndShoot('Left');
-
-                bossBulletTimer = game.time.now + raySpacing;
+                
+                // Set up Firing
+                var bulletSpeed = 600;
+                var firingDelay = 700;
+                boss2.bullets = 5;
+                boss2.lastShot = 0;
+                
+                // Fire
+                bossBullet = bossBullets.getFirstExists(false);
+                if (bossBullet &&
+                    this.alive &&
+                    this.bullets &&
+                    game.time.now > firingDelay + this.lastShot) {
+                        this.lastShot = game.time.now;
+                        this.bullets--;
+                        bossBullet.reset(this.x + this.width / 2, this.y);
+                        bossBullet.damageAmount = this.damageAmount;
+                        var angle = game.physics.arcade.moveToObject(bossBullet, player, bulletSpeed);
+                        bossBullet.angle = game.math.radToDeg(angle);
+			    }
             }
         };
 
         boss2.update = function() {
             if (!boss2.alive) return;
 
-            boss2.rayLeft.update();
-            boss2.rayRight.update();
-            
             if (boss2.y > player.y) {
                 boss2.body.acceleration.y = -50;
             }
@@ -436,8 +419,7 @@ var level2 = {
         // boss2
         game.physics.arcade.overlap(boss2, bullets, hitBoss, bossHitTest, this);
         game.physics.arcade.overlap(boss2, honeyRings, hitBoss, bossHitTest, this);
-        game.physics.arcade.overlap(player, boss2.rayRight, enemyHitsPlayer, null, this);
-        game.physics.arcade.overlap(player, boss2.rayLeft, enemyHitsPlayer, null, this);
+        game.physics.arcade.overlap(player, bossBullets, enemyHitsPlayer, null, this);
 
         // Game Over fading and restarting game
         if (!player.alive && gameOver.visible === false) {

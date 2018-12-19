@@ -59,7 +59,7 @@ body {
 		console.log("enemy2Level2LaunchTimer",enemy2Level2LaunchTimer);
 		console.log("enemy2Level2Launched",enemy2Level2Launched);
 		console.log("score",score)
-		
+
 		// Needed for asteroids
 		var asteroids;
 		var asteroidsSpacing = 1000;
@@ -574,7 +574,7 @@ body {
 			console.log("enemy2Level2Launched",enemy2Level2Launched);
 			console.log("score",score);
 			console.log("enemy2Level2LaunchTimer",enemy2Level2LaunchTimer);
-			if (!enemy2Level2Launched === false && score >= 1500) {
+			if (!enemy2Level2Launched && score >= 1500) {
 				game.time.events.add(2000, function(){
 					console.log("enemy2Level2Launched",enemy2Level2Launched);
 					enemy2Level2Launched = true;
@@ -584,7 +584,7 @@ body {
 			}
 
 			// Boss2 comes in after a score of 30000
-			if (!bossLaunched && score > 30000) {
+			if (!bossLaunched && score > 3000) {
 				game.time.events.add(2000, function(){
 					bossLaunched = true;
 					launchBoss();
@@ -668,15 +668,11 @@ body {
 
 			if (level === 1){
 				//Boss1
-				boss1.rayLeft.kill();
-				boss1.rayRight.kill();
 				boss1.kill();
     	        bossLaunched = false;
 			}
 			if (level === 2){
 				//Boss2
-				boss2.rayLeft.kill();
-				boss2.rayRight.kill();
 				boss2.kill();
 				bossLaunched = false;
 			}
