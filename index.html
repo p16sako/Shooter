@@ -13,6 +13,7 @@ body {
 <script src="menu.js" type="text/javascript"></script>
 <script src="Level1.js" type="text/javascript"></script>
 <script src="Level2.js" type="text/javascript"></script>
+<script src="Congratulations.js" type="text/javascript"></script>
 <script src="//cdn.jsdelivr.net/phaser/2.6.2/phaser.min.js" type="text/javascript"></script>
 </head>
 <body>
@@ -56,9 +57,6 @@ body {
 		var enemy2Level2LaunchTimer;
 		var enemy2Level2Launched = false;
 		var enemy2Bullets;
-		console.log("enemy2Level2LaunchTimer",enemy2Level2LaunchTimer);
-		console.log("enemy2Level2Launched",enemy2Level2Launched);
-		console.log("score",score)
 
 		// Needed for asteroids
 		var asteroids;
@@ -102,7 +100,8 @@ body {
 		game.state.add('Level1', level1);
 		game.state.add('Level2', level2);
 		game.state.add('Menu', menu);
-		game.state.start('Menu');
+		game.state.add('Congrats', congrats);
+		game.state.start('Congrats', true, true);
 
 		function fireBullet() {
 		//  To avoid them being allowed to fire too fast we set a time limit
@@ -532,11 +531,9 @@ body {
 			}
 
 			// Launch boss
-			if (!bossLaunched && score > 15000 && level === 1) {
-				game.time.events.add(2000, function(){
-					bossLaunched = true;
-					launchBoss();
-				});
+			if (!bossLaunched && score > 20000 && level === 1) {
+				bossLaunched = true;
+				launchBoss();
 			}
 		}
 
@@ -571,24 +568,15 @@ body {
 			}
 
 			// Enemy2 comes in after a score of 1500
-			console.log("enemy2Level2Launched",enemy2Level2Launched);
-			console.log("score",score);
-			console.log("enemy2Level2LaunchTimer",enemy2Level2LaunchTimer);
-			if (!enemy2Level2Launched && score >= 1500) {
-				game.time.events.add(2000, function(){
-					console.log("enemy2Level2Launched",enemy2Level2Launched);
-					enemy2Level2Launched = true;
-					launchEnemy2Level2();
-					console.log("enemy2LevelLaunched",enemy2Level2Launched)
-				});
+			if (!enemy2Level2Launched && score >= 2000) {
+				enemy2Level2Launched = true;
+				launchEnemy2Level2();
 			}
 
 			// Boss2 comes in after a score of 30000
-			if (!bossLaunched && score > 3000) {
-				game.time.events.add(2000, function(){
-					bossLaunched = true;
-					launchBoss();
-				});
+			if (!bossLaunched && score > 30000) {
+				bossLaunched = true;
+				launchBoss();
 			}
 		}
 
@@ -601,7 +589,6 @@ body {
 			rumble.play();
 
 			bullet.kill();
-
 			if (boss.hp > 0){
 				boss.hp -= 10;
 			}
@@ -609,6 +596,7 @@ body {
 				boss.finishOff();
 			}
 		}
+		
 
 		function bossHitTest(boss, bullet){
 			if ((bullet.x > boss.x + boss.width / 5 &&
@@ -632,7 +620,7 @@ body {
 			scoreText.render();
 			nextLevel.visible = false;
 			level = 2;
-			game.state.start('Level2');
+			game.state.start('Level2', true, true);
 		}
 
 		// Function for when the game needs to be restarted
@@ -710,9 +698,6 @@ body {
 			music.stop();
 			music.play();
 			player.revive();
-			if (level === 2){
-				game.state.add('Level1');
-			}
 		}
 
 	</script>

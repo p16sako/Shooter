@@ -226,6 +226,7 @@ var level2 = {
                     bossDeath.on = false;
                 });
             }
+            game.state.start('Congrats', true, true);
         };
 
         // Enemy3 Bullets
@@ -248,7 +249,9 @@ var level2 = {
                 // Set up Firing
                 var bulletSpeed = 600;
                 var firingDelay = 700;
-                boss2.bullets = 5;
+                
+                
+                boss2.bullets = 1;
                 boss2.lastShot = 0;
                 
                 // Fire
@@ -263,7 +266,7 @@ var level2 = {
                         bossBullet.damageAmount = this.damageAmount;
                         var angle = game.physics.arcade.moveToObject(bossBullet, player, bulletSpeed);
                         bossBullet.angle = game.math.radToDeg(angle);
-			    }
+                }
             }
         };
 

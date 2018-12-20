@@ -226,7 +226,7 @@ var level1 = {
             ray.scale.y = 2;
             ray.damageAmount = boss1.damageAmount;
             game.physics.enable(ray, Phaser.Physics.ARCADE);
-            ray.body.setSize(ray.width / 5, ray.height / 4);
+            ray.body.setSize(ray.width / 2, ray.height / 2);
             ray.update = function() {
                 this.alpha = game.rnd.realInRange(0.6, 1);
             };
@@ -249,12 +249,12 @@ var level1 = {
                     ray = boss1['ray' + side];
                     ray.name = side
                     ray.revive();
-                    ray.x = 100;
-                    ray.alpha = 0;
+                    ray.x = -80;
+                    ray.alpha = 10;
                     ray.scale.x = 17;
-                    game.add.tween(ray).to({alpha: 13}, chargeTime, Phaser.Easing.Linear.In, true).onComplete.add(function(ray){
-                        ray.scale.x = 188;
-                        game.add.tween(ray).to({x: 1875}, rayTime, Phaser.Easing.Linear.In, true).onComplete.add(function(ray){
+                    game.add.tween(ray).to({alpha: 10}, chargeTime, Phaser.Easing.Linear.In, true).onComplete.add(function(ray){
+                        ray.scale.x = 200;
+                        game.add.tween(ray).to({x: -1000}, rayTime, Phaser.Easing.Linear.In, true).onComplete.add(function(ray){
                             ray.kill();
                         });
                     });

@@ -16,7 +16,7 @@ var menu = {
         // Picture and button to choose level 1
         var click1 = game.add.button(game.width /2 - 100, game.height / 2 + 25, 'Level1', function(){
             level = 1;
-            game.state.start('Level1');
+            game.state.start('Level1', true, true);
 
         });
         click1.anchor.set(0.5,0.5);
@@ -24,7 +24,7 @@ var menu = {
         // Picture and button to choose level 2
         var click2 = game.add.button(game.width /2 + 100, game.height / 2 + 25, 'Level2', function(){
             level = 2;
-            game.state.start('Level2');
+            game.state.start('Level2', true, true);
 
         });
         click2.anchor.set(0.5,0.5);
