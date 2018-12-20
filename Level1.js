@@ -2,6 +2,11 @@ var level1 = {
     
     preload: function() {
 
+        //  We need this because the assets are on github pages
+        //  Remove the next 2 lines if running locally
+        //game.load.baseURL = 'https://ioniodi.github.io/Shooter/';
+        //game.load.crossOrigin = 'anonymous';
+
         //basic
         game.load.image('starfield', 'assets/starfield.png');
         game.load.image('ship', 'assets/ship.png');
@@ -221,7 +226,7 @@ var level1 = {
             ray.scale.y = 2;
             ray.damageAmount = boss1.damageAmount;
             game.physics.enable(ray, Phaser.Physics.ARCADE);
-            ray.body.setSize(ray.width / 3, ray.height / 2);
+            ray.body.setSize(ray.width * 4, ray.height / 4);
             ray.update = function() {
                 this.alpha = game.rnd.realInRange(0.6, 1);
             };
@@ -229,6 +234,7 @@ var level1 = {
         }
         addRay(1);
         addRay(-1);
+
         //  need to add the ship texture to the group so it renders over the rays
         var ship = game.add.sprite(0, 0, 'blueBoss');
         ship.anchor = {x: 0.5, y: 0.5};
@@ -246,10 +252,10 @@ var level1 = {
                     ray.revive();
                     ray.x = -80;
                     ray.alpha = 0;
-                    ray.scale.x = 17;
+                    ray.scale.x = 20;
                     game.add.tween(ray).to({alpha: 10}, chargeTime, Phaser.Easing.Linear.In, true).onComplete.add(function(ray){
                         ray.scale.x = 200;
-                        game.add.tween(ray).to({x: -1000}, rayTime, Phaser.Easing.Linear.In, true).onComplete.add(function(ray){
+                        game.add.tween(ray).to({x: -1500}, rayTime, Phaser.Easing.Linear.In, true).onComplete.add(function(ray){
                             ray.kill();
                         });
                     });
@@ -288,7 +294,7 @@ var level1 = {
             //  fire if player is in target
             var angleToPlayer = game.math.radToDeg(game.physics.arcade.angleBetween(boss1, player));
             var anglePointing = Math.abs(boss1.angle);
-            if (anglePointing - angleToPlayer < 20) {
+            if (bossLaunched && anglePointing - angleToPlayer < 20) {
                 boss1.fire();
             }
         }
