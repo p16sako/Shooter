@@ -2,11 +2,6 @@ var level2 = {
 
     preload: function() {
 
-        //  We need this because the assets are on github pages
-        //  Remove the next 2 lines if running locally
-        //game.load.baseURL = 'https://ioniodi.github.io/Shooter/';
-        //game.load.crossOrigin = 'anonymous';
-
         //basic
         game.load.image('starfield', 'assets/starfield.png');
         game.load.image('ship', 'assets/ship.png');
@@ -263,7 +258,7 @@ var level2 = {
                         this.lastShot = game.time.now;
                         this.bullets--;
                         bossBullet.reset(this.x + this.width / 2, this.y);
-                        bossBullet.damageAmount = this.damageAmount;
+                        bossBullet.damageAmount = 10;
                         var angle = game.physics.arcade.moveToObject(bossBullet, player, bulletSpeed);
                         bossBullet.angle = game.math.radToDeg(angle);
                 }
