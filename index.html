@@ -20,10 +20,10 @@ body {
 	<script type="text/javascript">
 		var game = new Phaser.Game(800, 600, Phaser.AUTO, 'phaser-demo')
 	
-		function preload(){
+		/*function preload(){
 			game.load.baseURL = 'https://p16sako.github.io/Shooter/';
 			game.load.crossOrigin = 'anonymous';
-		}
+		}*/
 		
 		// Basics
 		var player;
@@ -592,7 +592,7 @@ body {
 
 		function hitBoss(boss, bullet){
 			var explosion = explosions.getFirstExists(false);
-			explosion.reset(boss.body.x ,boss.body.y + game.rnd.integerInRange(boss.body.y - 10, boss.body.y+10))
+			explosion.reset(boss.body.x + 50 ,boss.body.y + game.rnd.integerInRange(50,100));
 			explosion.body.velocity.y = boss.body.velocity.y;
 			explosion.alpha = 1.5;
 			explosion.play('trail', 50, false, true);
@@ -684,12 +684,13 @@ body {
 				//Boss1
 				boss1.kill();
 				bossLaunched = false;
-    	        bossLaunched = false;
+				bossBullets.callAll('kill');
 			}
 			if (level === 2){
 				//Boss2
 				boss2.kill();
 				bossLaunched = false;
+				bossBullets.callAll('kill');
 			}
 
 			// Ηρακλής

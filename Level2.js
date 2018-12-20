@@ -2,6 +2,11 @@ var level2 = {
 
     preload: function() {
 
+        //  We need this because the assets are on github pages
+        //  Remove the next 2 lines if running locally
+        //game.load.baseURL = 'https://ioniodi.github.io/Shooter/';
+        //game.load.crossOrigin = 'anonymous';
+
         //basic
         game.load.image('starfield', 'assets/starfield.png');
         game.load.image('ship', 'assets/ship.png');
@@ -224,7 +229,7 @@ var level2 = {
             game.state.start('Congrats', true, true);
         };
 
-        // Boss2 Bullets
+        // Enemy3 Bullets
         bossBullets = game.add.group();
         bossBullets.enableBody = true;
         bossBullets.physicsBodyType = Phaser.Physics.ARCADE;
@@ -237,30 +242,22 @@ var level2 = {
         bossBullets.forEach(function(enemy){
             enemy.body.setSize(15, 20);
         });
-        
-        // Function to make boss fire at the player
-        boss2.fire = function() {
-            if (game.time.now > bossBulletTimer) {
-                
-                var bulletSpeed = 800;
-                
-                boss2.lastShot = 0;
-                
-                // Fire
-                bossBullet = bossBullets.getFirstExists(false);
-                this.lastShot = game.time.now;
-                bossBullet.reset(this.x + this.width / 2, this.y);
-                bossBullet.damageAmount = 10;
-                var angle = game.physics.arcade.moveToObject(bossBullet, player, bulletSpeed);
-                bossBullet.angle = game.math.radToDeg(angle);
-            }
-        };
 
-        boss2.update = function() {
-            
-             // Set up Firing
-             var firingDelay = 500;
+        boss2.fire = function(bossBullet) {
                 
+            // Set up Firing
+            var bulletSpeed = 600;
+            
+            // Fire
+            this.lastShot = game.time.now;
+            this.bullets--;
+            bossBullet.reset(this.x - this.width / 2, this.y);
+            bossBullet.damageAmount = this.damageAmount / 12;
+            var angle = game.physics.arcade.moveToObject(bossBullet, player, bulletSpeed);
+            bossBullet.angle = game.math.radToDeg(angle);
+        };
+        
+        boss2.update = function() {
             if (!boss2.alive) return;
 
             if (boss2.y > player.y) {
@@ -281,9 +278,18 @@ var level2 = {
             boss2.scale.y = 0.6 - Math.abs(bank) / 3;
             boss2.angle = bank;
 
+            var firingDelay = 700;
+
+            boss2.bullets = 1;
+            boss2.lastShot = 0;
+
             //  fire if player is in target
-            if (this.alive && game.time.now > firingDelay + this.lastShot){
-                boss2.fire();
+            bossBullet = bossBullets.getFirstExists(false);
+            if (bossBullet &&
+                this.alive &&
+                this.bullets &&
+                game.time.now > firingDelay + this.lastShot) {
+                boss2.fire(bossBullet);
             }
         }
         boss2.bringToTop();
