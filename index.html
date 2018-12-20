@@ -418,9 +418,14 @@ body {
 					};
 				}
 			}
-			//  Send another wave soon
-			enemy2Level2LaunchTimer = game.time.events.add
+			if (!bossLaunched){
+				//  Send another wave soon
+				enemy2Level2LaunchTimer = game.time.events.add
 				(game.rnd.integerInRange(timeBetweenWaves, timeBetweenWaves*2), launchEnemy2Level2);
+			}
+			else
+				enemy2Level2LaunchTimer = game.time.events.add
+				(game.rnd.integerInRange(timeBetweenWaves*4, timeBetweenWaves*6), launchEnemy2Level2);
 		}
 
 		// Start spawning Aliens
