@@ -304,7 +304,7 @@ body {
 		//Start spawning enemy1Level2
 		function launchEnemy1Level2(){
 
-			var ENEMY_SPEED = 500;
+			var ENEMY_SPEED = 600;
 
 			var enemy = enemy1Level2.getFirstExists(false);
 			if (enemy){
@@ -362,11 +362,11 @@ body {
 		// Start spawning second enemies for Level 2
 		function launchEnemy2Level2() {
 			var startingY = game.rnd.integerInRange(100, game.height - 100);
-			var horizontalSpeed = 300;
+			var horizontalSpeed = 350;
 			var spread = 60;
 			var frequency = 70;
 			var horizontalSpacing = 80;
-			var numEnemiesInWave = 6;
+			var numEnemiesInWave = 7;
 			var timeBetweenWaves = 2000;
 
 			//  Launch wave
@@ -420,7 +420,7 @@ body {
 			}
 			//  Send another wave soon
 			enemy2Level2LaunchTimer = game.time.events.add
-				(game.rnd.integerInRange(timeBetweenWaves, timeBetweenWaves + 3000), launchEnemy2Level2);
+				(game.rnd.integerInRange(timeBetweenWaves, timeBetweenWaves*2), launchEnemy2Level2);
 		}
 
 		// Start spawning Aliens
