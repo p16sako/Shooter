@@ -242,31 +242,25 @@ var level2 = {
         boss2.fire = function() {
             if (game.time.now > bossBulletTimer) {
                 
-                // Set up Firing
                 var bulletSpeed = 800;
-                var firingDelay = 500;
                 
-                
-                boss2.bullets = 1;
                 boss2.lastShot = 0;
                 
                 // Fire
                 bossBullet = bossBullets.getFirstExists(false);
-                if (bossBullet &&
-                    this.alive &&
-                    this.bullets &&
-                    game.time.now > firingDelay + this.lastShot) {
-                        this.lastShot = game.time.now;
-                        this.bullets--;
-                        bossBullet.reset(this.x + this.width / 2, this.y);
-                        bossBullet.damageAmount = 10;
-                        var angle = game.physics.arcade.moveToObject(bossBullet, player, bulletSpeed);
-                        bossBullet.angle = game.math.radToDeg(angle);
-                }
+                this.lastShot = game.time.now;
+                bossBullet.reset(this.x + this.width / 2, this.y);
+                bossBullet.damageAmount = 10;
+                var angle = game.physics.arcade.moveToObject(bossBullet, player, bulletSpeed);
+                bossBullet.angle = game.math.radToDeg(angle);
             }
         };
 
         boss2.update = function() {
+            
+             // Set up Firing
+             var firingDelay = 500;
+                
             if (!boss2.alive) return;
 
             if (boss2.y > player.y) {
@@ -288,9 +282,7 @@ var level2 = {
             boss2.angle = bank;
 
             //  fire if player is in target
-            var angleToPlayer = game.math.radToDeg(game.physics.arcade.angleBetween(boss2, player));
-            var anglePointing = Math.abs(boss2.angle);
-            if (anglePointing - angleToPlayer < 20) {
+            if (this.alive && game.time.now > firingDelay + this.lastShot){
                 boss2.fire();
             }
         }
