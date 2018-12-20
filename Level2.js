@@ -224,7 +224,7 @@ var level2 = {
             game.state.start('Congrats', true, true);
         };
 
-        // Enemy3 Bullets
+        // Boss2 Bullets
         bossBullets = game.add.group();
         bossBullets.enableBody = true;
         bossBullets.physicsBodyType = Phaser.Physics.ARCADE;
@@ -237,13 +237,14 @@ var level2 = {
         bossBullets.forEach(function(enemy){
             enemy.body.setSize(15, 20);
         });
-
+        
+        // Function to make boss fire at the player
         boss2.fire = function() {
             if (game.time.now > bossBulletTimer) {
                 
                 // Set up Firing
-                var bulletSpeed = 600;
-                var firingDelay = 700;
+                var bulletSpeed = 800;
+                var firingDelay = 500;
                 
                 
                 boss2.bullets = 1;
