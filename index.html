@@ -622,6 +622,22 @@ body {
 		// Function for next level
 		function next(){
 			
+			// Enemy2
+			enemy2.callAll('kill');
+			game.time.events.remove(enemy2LaunchTimer);
+			game.time.events.add(1000, 	launchEnemy2);
+
+			// Enemy3
+			enemy3.callAll('kill');
+			enemy3Bullets.callAll('kill');
+			game.time.events.remove(enemy3LaunchTimer);
+			
+			enemy2Spacing = 1000;
+			enemy3Launched = false;
+			
+			bossLaunched = false;
+			boss1.hp = 1000
+			
 			// Revive the player
 			player.reset(100, game.height / 2);
 			player.health = 100;
@@ -667,6 +683,7 @@ body {
 			if (level === 1){
 				//Boss1
 				boss1.kill();
+				bossLaunched = false;
     	        bossLaunched = false;
 			}
 			if (level === 2){
