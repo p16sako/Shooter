@@ -355,8 +355,14 @@ body {
 				};
 			}
 			//  Send another enemy soon
-			asteroidsLaunchTimer =
-			game.time.events.add(game.rnd.integerInRange(asteroidsSpacing, asteroidsSpacing*2), launchAsteroids);
+			if (!bossLaunched){
+				asteroidsLaunchTimer =
+				game.time.events.add(game.rnd.integerInRange(asteroidsSpacing, asteroidsSpacing*2), launchAsteroids);
+			}
+			else if (bossLaunched){
+				asteroidsLaunchTimer =
+				game.time.events.add(game.rnd.integerInRange(asteroidsSpacing*2, asteroidsSpacing*4), launchAsteroids);
+			}
 		}
 
 		// Start spawning second enemies for Level 2
