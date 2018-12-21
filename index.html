@@ -692,8 +692,10 @@ body {
 				//Boss1
 				boss1.kill();
 				bossLaunched = false;
-				boss1.rayRight.kill();
-				boss1.rayLeft.kill();
+				if (boss1.rayRight && boss2.rayLeft){
+					boss1.rayRight.kill();
+					boss1.rayLeft.kill();
+				}
 			}
 			if (level === 2){
 				//Boss2
