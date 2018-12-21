@@ -293,9 +293,9 @@ var level1 = {
             boss1.angle = bank;
 
             //  fire if player is in target
-            var angleToPlayer = game.math.radToDeg(game.physics.arcade.angleBetween(boss1, player));
+            var angleToPlayer = game.math.radToDeg(game.physics.arcade.angleBetween(player, boss1));
             var anglePointing = Math.abs(boss1.angle);
-            if (game.time.now > bossBulletTimer && anglePointing - angleToPlayer < 20) {
+            if (game.time.now > bossBulletTimer && anglePointing - angleToPlayer < 18) {
                 boss1.fire();
             }
         }
