@@ -21,6 +21,7 @@ var level1 = {
         game.load.audio('rumble', 'sounds/rumble.mp3');
         game.load.audio('laser', 'sounds/laser.mp3');
         game.load.audio('enemyLaser', 'sounds/laser7.mp3');
+        game.load.audio('bossLaser', 'sounds/Rifle.mp3');
 
         //enemies
         game.load.image('enemy2', 'assets/enemies/enemy2.png');
@@ -226,14 +227,12 @@ var level1 = {
             ray.scale.y = 2;
             ray.damageAmount = boss1.damageAmount;
             game.physics.enable(ray, Phaser.Physics.ARCADE);
-            ray.body.setSize(ray.width * 4, ray.height / 4);
+            ray.body.setSize(ray.width * 8, ray.height / 4);
             ray.update = function() {
                 this.alpha = game.rnd.realInRange(0.6, 1);
             };
             boss1['ray' + (leftRight > 0 ? 'Right' : 'Left')] = ray;
         }
-        addRay(1);
-        addRay(-1);
 
         //  need to add the ship texture to the group so it renders over the rays
         var ship = game.add.sprite(0, 0, 'blueBoss');
@@ -241,10 +240,9 @@ var level1 = {
         boss1.addChild(ship);
 
         boss1.fire = function() {
-            if (game.time.now > bossBulletTimer) {
-                var raySpacing = 3000;
+                var raySpacing = 5000;
                 var chargeTime = 1500;
-                var rayTime = 1500;
+                var rayTime = 2000;
 
                 function chargeAndShoot(side) {
                     ray = boss1['ray' + side];
@@ -253,8 +251,8 @@ var level1 = {
                     ray.x = -80;
                     ray.alpha = 0;
                     ray.scale.x = 20;
-                    game.add.tween(ray).to({alpha: 10}, chargeTime, Phaser.Easing.Linear.In, true).onComplete.add(function(ray){
-                        ray.scale.x = 200;
+                    game.add.tween(ray).to({alpha: 15}, chargeTime, Phaser.Easing.Linear.In, true).onComplete.add(function(ray){
+                        ray.scale.x = 400;
                         game.add.tween(ray).to({x: -1500}, rayTime, Phaser.Easing.Linear.In, true).onComplete.add(function(ray){
                             ray.kill();
                         });
@@ -262,16 +260,24 @@ var level1 = {
                 }
                 chargeAndShoot('Right');
                 chargeAndShoot('Left');
+                bossLaser.play();
 
                 bossBulletTimer = game.time.now + raySpacing;
-            }
         };
 
         boss1.update = function() {
             if (!boss1.alive) return;
+            
+            if (!boss1.rayLeft && !boss1.rayRight ){
+                addRay(1);
+                addRay(-1);
+            }
 
             boss1.rayLeft.update();
             boss1.rayRight.update();
+
+            //console.log('after update ->',boss1.rayLeft);
+            //console.log('after update ->',boss1.rayRight);
             
             if (boss1.y > player.y) {
                 boss1.body.acceleration.y = -50;
@@ -294,7 +300,7 @@ var level1 = {
             //  fire if player is in target
             var angleToPlayer = game.math.radToDeg(game.physics.arcade.angleBetween(boss1, player));
             var anglePointing = Math.abs(boss1.angle);
-            if (bossLaunched && anglePointing - angleToPlayer < 20) {
+            if (game.time.now > bossBulletTimer && anglePointing - angleToPlayer < 20) {
                 boss1.fire();
             }
         }
@@ -329,6 +335,7 @@ var level1 = {
         gameOver.y = gameOver.y - gameOver.textHeight / 3;
         gameOver.visible = false;
 
+        // Next Level text
         nextLevel = game.add.bitmapText(game.world.centerX, game.world.centerY, 'spacefont', "      Congratulations!\nProceed to the next level", 50);
         nextLevel.x = nextLevel.x - nextLevel.textWidth / 2;
         nextLevel.y = nextLevel.y - nextLevel.textHeight / 3;
@@ -354,6 +361,9 @@ var level1 = {
 
         enemyLaser = game.add.audio('enemyLaser');
         enemyLaser.volume = 0.5;
+
+        bossLaser = game.add.audio('bossLaser');
+        bossLaser.volume = 0.7;
     },
 
     update: function() {
@@ -454,13 +464,19 @@ var level1 = {
             fadeInNextLevel.to({alpha: 1}, 1000, Phaser.Easing.Quintic.Out);
             fadeInNextLevel.onComplete.add(proceedToNextLevel);
             fadeInNextLevel.start();
+            
+            // Enemies
             enemy2.callAll('kill');
             enemy3.callAll('kill');
             enemy3Bullets.callAll('kill');
             game.time.events.remove(enemy2LaunchTimer);
             game.time.events.remove(enemy3LaunchTimer);
-            bullets.callAll('kill');
+            
+            //Boss
+            boss1.hp = 1000;
+            bossLaunched = false;
             bossMusic.stop();
+            
             function proceedToNextLevel(){
                 tapProceed = game.input.onTap.addOnce(_nextLevel, this);
                 spaceProceed = fireButton.onDown.addOnce(_nextLevel, this);

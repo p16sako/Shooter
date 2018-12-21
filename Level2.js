@@ -185,7 +185,7 @@ var level2 = {
         aliensForUpgrade.setAll('scale.y', 0.5);
 
 
-        //  The boss2
+        // The boss2
         boss2 = game.add.sprite(0, 0, 'redBoss');
         boss2.exists = false;
         boss2.alive = false;
@@ -226,10 +226,10 @@ var level2 = {
                     bossDeath.on = false;
                 });
             }
-            game.state.start('Congrats', true, true);
+            bossMusic.stop();
         };
 
-        // Enemy3 Bullets
+        // Boss2 Bullets
         bossBullets = game.add.group();
         bossBullets.enableBody = true;
         bossBullets.physicsBodyType = Phaser.Physics.ARCADE;
@@ -243,6 +243,7 @@ var level2 = {
             enemy.body.setSize(15, 20);
         });
 
+        // Similar to enemy2 way of firing only a lot more and quicker
         boss2.fire = function(bossBullet) {
                 
             // Set up Firing
@@ -252,7 +253,7 @@ var level2 = {
             this.lastShot = game.time.now;
             this.bullets--;
             bossBullet.reset(this.x - this.width / 2, this.y);
-            bossBullet.damageAmount = this.damageAmount / 12;
+            bossBullet.damageAmount = this.damageAmount / 6;
             var angle = game.physics.arcade.moveToObject(bossBullet, player, bulletSpeed);
             bossBullet.angle = game.math.radToDeg(angle);
         };
@@ -278,12 +279,13 @@ var level2 = {
             boss2.scale.y = 0.6 - Math.abs(bank) / 3;
             boss2.angle = bank;
 
+            // Used in fire()
             var firingDelay = 700;
 
             boss2.bullets = 1;
             boss2.lastShot = 0;
 
-            //  fire if player is in target
+            //  Start firing with a specified firing delay in between
             bossBullet = bossBullets.getFirstExists(false);
             if (bossBullet &&
                 this.alive &&
@@ -322,6 +324,12 @@ var level2 = {
         gameOver.x = gameOver.x - gameOver.textWidth / 2;
         gameOver.y = gameOver.y - gameOver.textHeight / 3;
         gameOver.visible = false;
+
+        // Next Level text
+        nextLevel = game.add.bitmapText(game.world.centerX, game.world.centerY, 'spacefont', "      Congratulations!\nProceed to the next level", 50);
+        nextLevel.x = nextLevel.x - nextLevel.textWidth / 2;
+        nextLevel.y = nextLevel.y - nextLevel.textHeight / 3;
+        nextLevel.visible = false;
 
         // Add Music
         music = game.add.audio('music');
@@ -434,6 +442,47 @@ var level2 = {
                       tapRestart.detach();
                       spaceRestart.detach();
                     restart();
+                }
+            }
+        }
+        // Congratulate the player for finishing Level 1 and calling Level 2
+        if (!boss2.alive && bossLaunched && nextLevel.visible === false){
+            nextLevel.visible = true;
+            nextLevel.alpha = 0;
+            var fadeInNextLevel = game.add.tween(nextLevel);
+            fadeInNextLevel.to({alpha: 1}, 1000, Phaser.Easing.Quintic.Out);
+            fadeInNextLevel.onComplete.add(finished);
+            fadeInNextLevel.start();
+            
+            // Enemy2 Level2 
+            enemy2Level2.callAll('kill');
+            enemy2Bullets.callAll('kill');
+            enemy2Level2Launched = false;
+            game.time.events.remove(enemy2Level2LaunchTimer);
+            
+            // Asteroids
+            asteroids.callAll('kill');
+            asteroidsSpacing = 1000;
+            asteroidsLaunched = false;
+            game.time.events.remove(asteroidsLaunchTimer);
+            
+            // Enemy1Level2
+            enemy1Level2.callAll('kill');
+            enemy1Level2Spacing = 600;
+            enemy2Level2Launched = false;
+            game.time.events.remove(enemy1Level2LaunchTimer);
+            
+            // Boss
+            bossLaunched = false;
+            bossMusic.stop();
+            
+            function finished(){
+                tapProceed = game.input.onTap.addOnce(_lastLevel, this);
+                spaceProceed = fireButton.onDown.addOnce(_lastLevel, this);
+                function _lastLevel(){
+                    tapProceed.detach();
+                    spaceProceed.detach();
+                    last();
                 }
             }
         }

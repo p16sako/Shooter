@@ -1,11 +1,17 @@
 var congrats = {
     preload: () => {
         game.load.bitmapFont('spacefont', 'assets/spacefont/spacefont2.png', 'assets/spacefont/spacefont2.xml');
+        game.load.audio('Victory', 'sounds/Victory.mp3');
     },
 
     create: () => {
         game.scale.pageAlignHorizontally = true;
         game.scale.pageAlignVertically = true;
+
+        victory = game.add.audio('Victory');
+        victory.volume = 0.5;
+        victory.loop = true;
+        victory.play();
 
         fireButton = game.input.keyboard.addKey(Phaser.Keyboard.SPACEBAR);
 
@@ -19,6 +25,7 @@ var congrats = {
         tapRestart = game.input.onTap.addOnce(_restart, this);
         spaceRestart = fireButton.onDown.addOnce(_restart, this);
         function _restart() {
+            victory.stop();
             tapRestart.detach();
             spaceRestart.detach();
             game.state.start('Menu', true, true);
