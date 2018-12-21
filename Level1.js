@@ -1,12 +1,7 @@
 var level1 = {
     
     preload: function() {
-
-        //  We need this because the assets are on github pages
-        //  Remove the next 2 lines if running locally
-        //game.load.baseURL = 'https://ioniodi.github.io/Shooter/';
-        //game.load.crossOrigin = 'anonymous';
-
+        
         //basic
         game.load.image('starfield', 'assets/starfield.png');
         game.load.image('ship', 'assets/ship.png');
