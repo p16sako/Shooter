@@ -2,11 +2,6 @@ var level2 = {
 
     preload: function() {
 
-        //  We need this because the assets are on github pages
-        //  Remove the next 2 lines if running locally
-        //game.load.baseURL = 'https://ioniodi.github.io/Shooter/';
-        //game.load.crossOrigin = 'anonymous';
-
         //basic
         game.load.image('starfield', 'assets/starfield.png');
         game.load.image('ship', 'assets/ship.png');
@@ -236,7 +231,7 @@ var level2 = {
         bossBullets.enableBody = true;
         bossBullets.physicsBodyType = Phaser.Physics.ARCADE;
         bossBullets.createMultiple(30, 'deathRay');
-        bossBullets.callAll('crop', null, {x: 40, y: 0, width: 25, height: 30});
+        bossBullets.callAll('crop', null, {x: 40, y: 0, width: 30, height: 30});
         bossBullets.setAll('anchor.x', 0.5);
         bossBullets.setAll('anchor.y', 0.5);
         bossBullets.setAll('outOfBoundsKill', true);
