@@ -1,7 +1,12 @@
 var level1 = {
     
     preload: function() {
-        
+
+        //  We need this because the assets are on github pages
+        //  Remove the next 2 lines if running locally
+        //game.load.baseURL = 'https://ioniodi.github.io/Shooter/';
+        //game.load.crossOrigin = 'anonymous';
+
         //basic
         game.load.image('starfield', 'assets/starfield.png');
         game.load.image('ship', 'assets/ship.png');
@@ -135,14 +140,14 @@ var level1 = {
         enemy3Bullets.enableBody = true;
         enemy3Bullets.physicsBodyType = Phaser.Physics.ARCADE;
         enemy3Bullets.createMultiple(30, 'enemy3Bullet');
-        enemy3Bullets.callAll('crop', null, {x: 90, y: 0, width: 90, height: 45});
+        enemy3Bullets.callAll('crop', null, {x: 90, y: 0, width: 80, height: 48});
         enemy3Bullets.setAll('alpha', 0.9);
         enemy3Bullets.setAll('anchor.x', 0.5);
         enemy3Bullets.setAll('anchor.y', 0.5);
         enemy3Bullets.setAll('outOfBoundsKill', true);
         enemy3Bullets.setAll('checkWorldBounds', true);
         enemy3Bullets.forEach(function(enemy){
-            enemy.body.setSize(20, 20);
+            enemy.body.setSize(30, 20);
         });
 
         // An explosion pool
@@ -293,9 +298,9 @@ var level1 = {
             boss1.angle = bank;
 
             //  fire if player is in target
-            var angleToPlayer = game.math.radToDeg(game.physics.arcade.angleBetween(player, boss1));
+            var angleToPlayer = game.math.radToDeg(game.physics.arcade.angleBetween(boss1, player));
             var anglePointing = Math.abs(boss1.angle);
-            if (game.time.now > bossBulletTimer && anglePointing - angleToPlayer < 18) {
+            if (game.time.now > bossBulletTimer && anglePointing - angleToPlayer < 20) {
                 boss1.fire();
             }
         }

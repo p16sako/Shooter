@@ -20,10 +20,10 @@ body {
 	<script type="text/javascript">
 		var game = new Phaser.Game(800, 600, Phaser.AUTO, 'phaser-demo')
 	
-		function preload(){
+		/*function preload(){
 			game.load.baseURL = 'https://p16sako.github.io/Shooter/';
 			game.load.crossOrigin = 'anonymous';
-		}
+		}*/
 		
 		// Basics
 		var player;
@@ -570,7 +570,7 @@ body {
 			if (player.weaponLevel <= 2){
 				launchAliens(enemy.x,enemy.y);
 			}
-
+			
 			enemy.kill();
 			bullet.kill();
 
@@ -692,7 +692,7 @@ body {
 				//Boss1
 				boss1.kill();
 				bossLaunched = false;
-				if (boss1.rayRight && boss1.rayLeft){
+				if (boss1.rayLeft && boss1.rayRight){
 					boss1.rayRight.kill();
 					boss1.rayLeft.kill();
 				}

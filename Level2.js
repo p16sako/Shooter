@@ -25,14 +25,13 @@ var level2 = {
         //enemies
         game.load.image('enemy1', 'assets/enemies/smalldrone1.png');
         game.load.image('enemy2', 'assets/enemies/spaceshippod1smallyellow.png');
-        game.load.image('enemy2Bullet', 'assets/bullets/death-ray.png');
+        game.load.image('deathRay', 'assets/bullets/death-ray.png');
         game.load.image('aliens', 'assets/enemies/alien.png');
         game.load.image('asteroids', 'assets/enemies/asteroid.png');
         game.load.spritesheet('trail', 'assets/explode.png', 128, 128);
 
         // Boss2
         game.load.image('redBoss', 'assets/enemies/redBoss.png');
-        game.load.image('deathRay', 'assets/bullets/death-ray.png');
 
         //font
         game.load.bitmapFont('spacefont', 'assets/spacefont/spacefont2.png', 'assets/spacefont/spacefont2.xml');
@@ -139,7 +138,7 @@ var level2 = {
         enemy2Bullets = game.add.group();
         enemy2Bullets.enableBody = true;
         enemy2Bullets.physicsBodyType = Phaser.Physics.ARCADE;
-        enemy2Bullets.createMultiple(30, 'enemy2Bullet');
+        enemy2Bullets.createMultiple(30, 'deathRay');
         enemy2Bullets.callAll('crop', null, {x: 9, y: 0, width: 20, height: 30});
         enemy2Bullets.setAll('anchor.x', 0.5);
         enemy2Bullets.setAll('anchor.y', 0.5);
@@ -236,21 +235,15 @@ var level2 = {
         bossBullets = game.add.group();
         bossBullets.enableBody = true;
         bossBullets.physicsBodyType = Phaser.Physics.ARCADE;
-        bossBullets.createMultiple(30, 'enemy2Bullet');
-        bossBullets.callAll('crop', null, {x: 9, y: 0, width: 20, height: 30});
+        bossBullets.createMultiple(30, 'deathRay');
+        bossBullets.callAll('crop', null, {x: 40, y: 0, width: 25, height: 30});
         bossBullets.setAll('anchor.x', 0.5);
         bossBullets.setAll('anchor.y', 0.5);
         bossBullets.setAll('outOfBoundsKill', true);
         bossBullets.setAll('checkWorldBounds', true);
         bossBullets.forEach(function(enemy){
-            enemy.body.setSize(15, 20);
+            enemy.body.setSize(20, 20);
         });
-
-        // Similar to enemy2 way of firing only a lot more and quicker
-        boss2.fire = function(bossBullet) {
-                
-            
-        };
         
         boss2.update = function() {
             if (!boss2.alive) return;
@@ -273,22 +266,19 @@ var level2 = {
             boss2.scale.y = 0.6 - Math.abs(bank) / 3;
             boss2.angle = bank;
 
-            this.bullets = 1;
-
             //  Start firing with a specified firing delay in between
             bossBullet = bossBullets.getFirstExists(false);
             if (bossBullet &&
                 this.alive &&
                 game.time.now > this.firingDelay + this.lastShot) {
-                for (var i = 0; i < boss2.bullets; i++){
-                    // Fire
-                    this.lastShot = game.time.now;
-                    this.bullets--;
-                    bossBullet.reset(this.x - this.width / 2, this.y);
-                    bossBullet.damageAmount = this.damageAmount / 6;
-                    var angle = game.physics.arcade.moveToObject(bossBullet, player, this.bulletSpeed);
-                    bossBullet.angle = game.math.radToDeg(angle);
-                }
+                
+                // Fire
+                bossBullet.reset(this.x - this.width / 2, this.y);
+                bossBullet.damageAmount = this.damageAmount / 6;
+                var angle = game.physics.arcade.moveToObject(bossBullet, player, this.bulletSpeed);
+                bossBullet.angle = game.math.radToDeg(angle);
+                
+                this.lastShot = game.time.now;
             }
         }
         boss2.bringToTop();
